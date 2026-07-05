@@ -18,7 +18,7 @@ received message → tap tone → insert).
 | Repo | Status | Detail |
 |---|---|---|
 | `flirt-docs` | ✅ Complete | 13 docs: architecture, scope, DB, API, keyboard rules, prompts, roadmap, compliance, cost model, analytics, testing, conventions |
-| `flirt-api` | ✅ v0.1 working | NestJS · raw SQL via `DbService` (pg Pool, no ORM) · Flyway migrations · multi-provider AI layer (fake/openai/anthropic/gemini) · device auth JWT · metering ON, limits OFF |
+| `flirt-api` | ✅ v0.1 + tests/CI | NestJS · raw SQL via `DbService` (pg Pool, no ORM) · Flyway migrations · multi-provider AI layer (fake/openai/anthropic/gemini) · device auth JWT · metering ON, limits OFF · **36 unit + 9 e2e tests, GitHub Actions CI** |
 | `flirt-infra` | ✅ Working | Signalix-style: compose (postgres → flyway → redis → api → adminer) + `env/*.env` + `scripts/up\|down\|migrate\|logs.sh` |
 | `flirt-ios` | ✅ v0.2 working | App + **Keyboard Extension** (XcodeGen, 2 targets + Shared/) · App Group token sharing · clipboard-based keyboard flow verified in simulator |
 | `flirt-contracts` | ⬜ Empty | Extract from API once endpoints stabilize |
@@ -66,16 +66,22 @@ providers: edit `AI_PROVIDER` / `AI_MODEL` / key, then
 
 ## Next steps (in rough priority order)
 
-1. **Automated tests + CI** for the API (provider adapters with mocks,
-   contract tests, GitHub Actions) per TESTING_STRATEGY.md — the codebase is
-   growing and has zero test coverage.
-2. **Physical iPhone test of the keyboard** (memory budget, real Full Access
+1. **Physical iPhone test of the keyboard** (memory budget, real Full Access
    flow) + move tokens from App Group UserDefaults to a shared Keychain
-   (required before TestFlight).
-3. **`flirt-contracts`** — extract shared JSON schemas from the API.
-4. App polish: onboarding explaining keyboard setup, local history, better
+   (required before TestFlight). Needs an Apple Developer account.
+2. **`flirt-contracts`** — extract shared JSON schemas from the API.
+3. App polish: onboarding explaining keyboard setup, local history, better
    error states.
-5. v0.3 groundwork: email auth, opt-in history, `GET /usage` endpoint.
+4. v0.3 groundwork: email auth, opt-in history, `GET /usage` endpoint.
+
+## Testing (added 2026-07-05)
+
+- `npm test` — 36 unit tests (providers, prompts, factory, usage fail-open,
+  AiService 502 mapping + privacy assertion, AuthService).
+- `npm run test:e2e` — 9 supertest tests against real Postgres/Redis with the
+  fake provider (start `Flirt-infra/scripts/up.sh` first).
+- CI: `.github/workflows/ci.yml` — build + unit + migrations (psql) + e2e on
+  every push/PR with service containers.
 
 ## v0.2 keyboard debt (carry into v1.0 gate)
 
