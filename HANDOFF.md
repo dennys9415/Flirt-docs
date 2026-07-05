@@ -1,13 +1,19 @@
 # Handoff — Project Status
 
-> Last updated: **2026-07-04**. Update this file at the end of every working
+> Last updated: **2026-07-05**. Update this file at the end of every working
 > session (Signalix convention).
 
 ## Where the project stands
 
-**v0.1 AND v0.2 (Keyboard MVP) are COMPLETE, verified in the simulator**:
-the Flirt custom keyboard generates real Gemini replies and inserts them into
-host apps (tested in Reminders). User confirmed the full flow working.
+**v0.1, v0.2 (Keyboard MVP) and v0.3 (Users & History) are COMPLETE** and
+verified in the simulator. The keyboard generates real Gemini replies and
+inserts into host apps; the app now has onboarding, email accounts
+(register/login with device linking), opt-in history, and usage display.
+62 automated tests (42 unit + 20 e2e) green in CI.
+
+v0.3 highlights: limits machinery is complete but **enforced=false**
+(powerful-MVP); history content is only persisted with explicit
+`historyOptIn`; anonymous devices keep working without an account.
 
 v0.2 architecture: `Shared/` sources compiled into both targets; App Group
 (`group.com.singularitybox.flirt`) carries tokens + selected tone; the app
@@ -66,13 +72,17 @@ providers: edit `AI_PROVIDER` / `AI_MODEL` / key, then
 
 ## Next steps (in rough priority order)
 
-1. **Physical iPhone test of the keyboard** (memory budget, real Full Access
-   flow) + move tokens from App Group UserDefaults to a shared Keychain
-   (required before TestFlight). Needs an Apple Developer account.
-2. **`flirt-contracts`** — extract shared JSON schemas from the API.
-3. App polish: onboarding explaining keyboard setup, local history, better
-   error states.
-4. v0.3 groundwork: email auth, opt-in history, `GET /usage` endpoint.
+Agreed sequencing: finish everything buildable without an Apple Developer
+account; enroll ($99) only at the end for TestFlight/App Store.
+
+1. **v0.4 — StoreKit local**: subscription products via StoreKit
+   Configuration file (testable in simulator without App Store Connect),
+   upgrade screen, `POST /subscriptions/verify` backend stub.
+2. **Deploy the backend publicly** (Railway/Fly) with HTTPS — prerequisite
+   for any real-device testing.
+3. **`flirt-contracts`** — extract shared JSON schemas.
+4. End of project (needs Apple account): physical iPhone keyboard test,
+   shared Keychain migration, TestFlight, App Store submission.
 
 ## Testing (added 2026-07-05)
 
