@@ -79,12 +79,29 @@ providers: edit `AI_PROVIDER` / `AI_MODEL` / key, then
 Agreed sequencing: finish everything buildable without an Apple Developer
 account; enroll ($99) only at the end for TestFlight/App Store.
 
-1. **Deploy the backend publicly** (Railway/Fly) with HTTPS — prerequisite
-   for any real-device testing.
-2. **`flirt-contracts`** — extract shared JSON schemas.
-3. End of project (needs Apple account): physical iPhone keyboard test,
+1. ~~Deploy the backend publicly~~ ✅ **DONE 2026-07-05** — see Production below.
+2. **Add `DEPLOY_SSH_KEY` secret** to the Flirt-api GitHub repo so the CD job
+   works (key ready on the user's machine; see session notes).
+3. **`flirt-contracts`** — extract shared JSON schemas.
+4. End of project (needs Apple account): physical iPhone keyboard test,
    shared Keychain migration, real App Store Server API verification
    (`SUBSCRIPTION_VERIFY_MODE=app_store`), TestFlight, App Store submission.
+
+## Production (added 2026-07-05)
+
+- **URL:** https://api.thesingularitybox.com (Let's Encrypt via certbot)
+- **Server:** user's existing "crypto" VPS (SSH alias `crypto`, root,
+  Ubuntu 22.04, 1GB RAM) — 66.175.212.17, DNS on Cloudflare (grey cloud).
+- **Coexists with** the user's pm2 site (cryptorepair.com, port 3000) —
+  untouched; Flirt API binds 127.0.0.1:3001 behind a dedicated nginx block.
+- **Layout:** `/opt/flirt/{Flirt-api,Flirt-infra}` (public GitHub clones);
+  secrets in `/opt/flirt/Flirt-infra/env/*.env` (chmod 600, unique prod
+  JWT/DB secrets; Gemini free tier).
+- **Deploy:** `bash /opt/flirt/Flirt-infra/scripts/deploy.sh` on the server
+  (pull → build → flyway migrate → restart → health gate), or automatically
+  via the CI `deploy` job on every green main push (once the secret is set).
+- **iOS:** simulator → localhost; real device → production URL
+  (`#if targetEnvironment(simulator)` in AppConfig).
 
 ## Testing (added 2026-07-05)
 
