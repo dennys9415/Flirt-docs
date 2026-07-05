@@ -12,12 +12,14 @@ everything at once — validate the reply flow first, then the keyboard, then mo
 - ✅ Docker Compose via `flirt-infra`: API + Postgres + **Flyway** + Redis + adminer.
 - ✅ **Exit criteria met:** end-to-end reply generation verified in the simulator.
 
-## v0.2 — Keyboard MVP
-- Custom Keyboard Extension with tone buttons + Insert.
-- Refine actions: Shorter / Funnier / More Direct (`POST /ai/refine`).
-- App Groups sharing (token + settings) between app and keyboard.
-- Full Access prompt + graceful offline state.
-- **Exit criteria:** reply inserted into a real host app in ≤ 3 taps on a device.
+## v0.2 — Keyboard MVP ✅ DONE 2026-07-04 (simulator)
+- ✅ Custom Keyboard Extension with tone buttons + Insert (clipboard-based flow).
+- ✅ App Groups sharing (token + selected tone) between app and keyboard;
+  app provisions the device identity at launch (`warmUp()`).
+- ✅ Full Access prompt + "open the app first" + error states.
+- ✅ Reply inserted into a host app (Reminders) in ≤ 3 taps — verified in simulator.
+- ⬜ Pending: verification on a **physical iPhone** (memory budget, real Full
+  Access flow) and moving tokens from App Group UserDefaults to a shared Keychain.
 
 ## v0.3 — Users & limits
 - Email login (`/auth/login`, `/auth/refresh`), profile (`/users/*`).

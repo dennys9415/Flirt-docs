@@ -1,19 +1,26 @@
 # Handoff — Project Status
 
-> Last updated: **2026-07-03**. Update this file at the end of every working
+> Last updated: **2026-07-04**. Update this file at the end of every working
 > session (Signalix convention).
 
 ## Where the project stands
 
-**v0.1 (Local MVP) is COMPLETE and verified end-to-end**: iOS app in the
-simulator → local API → real Gemini generation → metered in Postgres.
+**v0.1 AND v0.2 (Keyboard MVP) are COMPLETE, verified in the simulator**:
+the Flirt custom keyboard generates real Gemini replies and inserts them into
+host apps (tested in Reminders). User confirmed the full flow working.
+
+v0.2 architecture: `Shared/` sources compiled into both targets; App Group
+(`group.com.singularitybox.flirt`) carries tokens + selected tone; the app
+provisions the device identity at launch (`APIClient.warmUp()`); the keyboard
+never registers its own device. Keyboard flow is clipboard-based (copy the
+received message → tap tone → insert).
 
 | Repo | Status | Detail |
 |---|---|---|
 | `flirt-docs` | ✅ Complete | 13 docs: architecture, scope, DB, API, keyboard rules, prompts, roadmap, compliance, cost model, analytics, testing, conventions |
 | `flirt-api` | ✅ v0.1 working | NestJS · raw SQL via `DbService` (pg Pool, no ORM) · Flyway migrations · multi-provider AI layer (fake/openai/anthropic/gemini) · device auth JWT · metering ON, limits OFF |
 | `flirt-infra` | ✅ Working | Signalix-style: compose (postgres → flyway → redis → api → adminer) + `env/*.env` + `scripts/up\|down\|migrate\|logs.sh` |
-| `flirt-ios` | ✅ Phase 1 working | SwiftUI via XcodeGen: paste → 5 tones → 3 real suggestions → copy/edit/refine · Keychain tokens · transparent device auth |
+| `flirt-ios` | ✅ v0.2 working | App + **Keyboard Extension** (XcodeGen, 2 targets + Shared/) · App Group token sharing · clipboard-based keyboard flow verified in simulator |
 | `flirt-contracts` | ⬜ Empty | Extract from API once endpoints stabilize |
 
 ## Key decisions locked in
@@ -59,12 +66,22 @@ providers: edit `AI_PROVIDER` / `AI_MODEL` / key, then
 
 ## Next steps (in rough priority order)
 
-1. **v0.2 — Keyboard Extension** (the differentiator): custom keyboard target,
-   App Groups (`group.com.singularitybox.flirt`) sharing tokens/settings,
-   tone buttons + insert. **Requires a physical iPhone to test properly**
-   (see IOS_KEYBOARD_RULES.md).
-2. **Automated tests** for the API (provider adapters with mocks, contract
-   tests) per TESTING_STRATEGY.md.
+1. **Automated tests + CI** for the API (provider adapters with mocks,
+   contract tests, GitHub Actions) per TESTING_STRATEGY.md — the codebase is
+   growing and has zero test coverage.
+2. **Physical iPhone test of the keyboard** (memory budget, real Full Access
+   flow) + move tokens from App Group UserDefaults to a shared Keychain
+   (required before TestFlight).
 3. **`flirt-contracts`** — extract shared JSON schemas from the API.
-4. App polish: onboarding, local history, better error states.
-5. v0.3 groundwork: email auth, opt-in history, usage endpoint.
+4. App polish: onboarding explaining keyboard setup, local history, better
+   error states.
+5. v0.3 groundwork: email auth, opt-in history, `GET /usage` endpoint.
+
+## v0.2 keyboard debt (carry into v1.0 gate)
+
+- Tokens in App Group UserDefaults (not encrypted) — migrate to shared
+  Keychain access group before TestFlight.
+- Keyboard is suggestion-only (no QWERTY) — evaluate App Review risk; may need
+  minimal typing support.
+- Full Access on the simulator was granted via prefs; the real Settings flow
+  must be walked through on a device.
