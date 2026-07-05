@@ -5,11 +5,15 @@
 
 ## Where the project stands
 
-**v0.1, v0.2 (Keyboard MVP) and v0.3 (Users & History) are COMPLETE** and
-verified in the simulator. The keyboard generates real Gemini replies and
-inserts into host apps; the app now has onboarding, email accounts
-(register/login with device linking), opt-in history, and usage display.
-62 automated tests (42 unit + 20 e2e) green in CI.
+**v0.1 through v0.4 are COMPLETE** (v0.4 in local-StoreKit form) and verified
+in the simulator. The keyboard generates real Gemini replies and inserts into
+host apps; the app has onboarding, email accounts, opt-in history, usage
+display, and a **working paywall** (Pro $9.99 / Premium $19.99 via StoreKit
+Configuration — purchases upgrade the plan through
+`POST /subscriptions/verify` in trust_client mode). 67 automated tests green.
+
+**Testing purchases:** run the app from Xcode (Cmd+R) — the scheme carries the
+StoreKit configuration; `simctl launch` alone won't load products.
 
 v0.3 highlights: limits machinery is complete but **enforced=false**
 (powerful-MVP); history content is only persisted with explicit
@@ -75,14 +79,12 @@ providers: edit `AI_PROVIDER` / `AI_MODEL` / key, then
 Agreed sequencing: finish everything buildable without an Apple Developer
 account; enroll ($99) only at the end for TestFlight/App Store.
 
-1. **v0.4 — StoreKit local**: subscription products via StoreKit
-   Configuration file (testable in simulator without App Store Connect),
-   upgrade screen, `POST /subscriptions/verify` backend stub.
-2. **Deploy the backend publicly** (Railway/Fly) with HTTPS — prerequisite
+1. **Deploy the backend publicly** (Railway/Fly) with HTTPS — prerequisite
    for any real-device testing.
-3. **`flirt-contracts`** — extract shared JSON schemas.
-4. End of project (needs Apple account): physical iPhone keyboard test,
-   shared Keychain migration, TestFlight, App Store submission.
+2. **`flirt-contracts`** — extract shared JSON schemas.
+3. End of project (needs Apple account): physical iPhone keyboard test,
+   shared Keychain migration, real App Store Server API verification
+   (`SUBSCRIPTION_VERIFY_MODE=app_store`), TestFlight, App Store submission.
 
 ## Testing (added 2026-07-05)
 

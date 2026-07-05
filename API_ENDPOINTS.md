@@ -130,13 +130,21 @@ account when logged in, otherwise to the device.
 ## Subscriptions
 
 ### POST /subscriptions/verify
-Verify an App Store transaction and update the user's plan.
+Record a StoreKit transaction and upgrade the user's plan. Requires an
+account (`403 account_required` for anonymous devices).
+
+**v0.4 note:** in `SUBSCRIPTION_VERIFY_MODE=trust_client` (local dev) the
+claim is trusted — StoreKit-testing transactions can't be verified against
+Apple. Real App Store Server API verification lands at v1.0 with the Apple
+Developer account.
 ```json
 // req
-{ "transactionId": "…", "receipt": "…" }
+{ "transactionId": "…", "productId": "com.singularitybox.flirt.pro.monthly",
+  "environment": "storekit_test", "expiresAt": "2026-08-05T…" }
 // res
-{ "plan": "pro", "status": "active", "expiresAt": "…" }
+{ "plan": "pro", "status": "active", "expiresAt": "2026-08-05T…" }
 ```
+Errors: `400 unknown_product`, `403 account_required`.
 
 ---
 
@@ -160,5 +168,5 @@ Verify an App Store transaction and update the user's plan.
 | PATCH | /users/profile | yes | v0.3 | ✅ |
 | GET | /usage | yes | v0.3 | ✅ |
 | GET | /history | yes | v0.3 | ✅ |
-| POST | /subscriptions/verify | yes | v0.4 | ⬜ |
+| POST | /subscriptions/verify | yes | v0.4 | ✅ (trust_client mode) |
 | GET | /health | none | v0.1 | ✅ |

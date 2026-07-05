@@ -30,11 +30,14 @@ everything at once — validate the reply flow first, then the keyboard, then mo
   decision — flips on via `ENFORCE_PLAN_LIMITS`).
 - ⬜ iOS: account/settings UI, history screen, onboarding.
 
-## v0.4 — Payments
-- StoreKit subscription (monthly), free trial, upgrade screen.
-- `POST /subscriptions/verify` server-side receipt verification.
-- Plan gating: free (limited) / pro (unlimited) / premium (coach).
-- **Exit criteria:** a user can subscribe and unlock Pro, verified on backend.
+## v0.4 — Payments ✅ DONE 2026-07-05 (local StoreKit)
+- ✅ StoreKit 2 subscriptions (Pro $9.99 / Premium $19.99 monthly) via local
+  StoreKit Configuration — testable in the simulator, no App Store Connect.
+- ✅ Paywall (upgrade screen) + restore purchases + Settings integration.
+- ✅ `POST /subscriptions/verify` records the transaction and upgrades the
+  plan (`trust_client` mode; V3 migration).
+- ⬜ Deferred to v1.0 (needs Apple Developer account): App Store Server API
+  verification, sandbox testing, free trial offer.
 
 ## v1.0 — Production
 - TestFlight → App Store submission.
