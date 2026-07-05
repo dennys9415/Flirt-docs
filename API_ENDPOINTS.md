@@ -23,13 +23,26 @@ Register/identify an anonymous device (used before full account exists).
 { "accessToken": "…", "refreshToken": "…", "deviceId": "uuid" }
 ```
 
+### POST /auth/register
+Create an account; links the calling device.
+```json
+// req
+{ "email": "…", "password": "…", "deviceIdentifier": "…" }
+// res
+{ "accessToken": "…", "refreshToken": "…", "deviceId": "…",
+  "user": { "id": "…", "email": "…", "plan": "free" } }
+```
+Errors: `409 email_taken`.
+
 ### POST /auth/login
 ```json
 // req
-{ "email": "…", "password": "…" }
-// res
-{ "accessToken": "…", "refreshToken": "…", "user": { "id": "…", "plan": "free" } }
+{ "email": "…", "password": "…", "deviceIdentifier": "…" }
+// res — same shape as /auth/register
+{ "accessToken": "…", "refreshToken": "…", "deviceId": "…",
+  "user": { "id": "…", "email": "…", "plan": "free" } }
 ```
+Errors: `401 invalid_credentials`.
 
 ### POST /auth/refresh
 ```json
@@ -78,11 +91,13 @@ Refine an existing suggestion.
 ## Users
 
 ### GET /users/me
-Returns the current user/profile and plan.
+Returns `{ "user": {...} }`, or `{ "user": null }` for anonymous devices.
 
 ### PATCH /users/profile
+Requires an account (`403 account_required` for anonymous devices).
 ```json
-{ "displayName": "…", "personality": { "traits": ["funny","confident"] } }
+{ "displayName": "…", "personality": { "traits": ["funny","confident"] },
+  "historyOptIn": true }
 ```
 
 ---
@@ -90,8 +105,24 @@ Returns the current user/profile and plan.
 ## Usage
 
 ### GET /usage
+`enforced` is `false` during the MVP (limits designed, not active).
 ```json
-{ "plan": "free", "used": 7, "limit": 20, "resetsAt": "2026-07-04T00:00:00Z" }
+{ "plan": "free", "used": 7, "limit": 20, "enforced": false,
+  "resetsAt": "2026-07-06T00:00:00Z" }
+```
+
+---
+
+## History
+
+### GET /history?limit=20
+Only returns generations made while `historyOptIn` was on. Scoped to the
+account when logged in, otherwise to the device.
+```json
+{ "entries": [
+  { "id": "…", "message": "…", "tone": "funny",
+    "suggestions": [{ "text": "…", "style": "…" }], "createdAt": "…" }
+] }
 ```
 
 ---
@@ -117,15 +148,17 @@ Verify an App Store transaction and update the user's plan.
 
 ## Endpoint summary
 
-| Method | Path | Auth | Phase |
-|---|---|---|---|
-| POST | /auth/device | none | v0.1 |
-| POST | /auth/login | none | v0.3 |
-| POST | /auth/refresh | none | v0.3 |
-| POST | /ai/replies | yes | v0.1 |
-| POST | /ai/refine | yes | v0.2 |
-| GET | /users/me | yes | v0.3 |
-| PATCH | /users/profile | yes | v0.3 |
-| GET | /usage | yes | v0.3 |
-| POST | /subscriptions/verify | yes | v0.4 |
-| GET | /health | none | v0.1 |
+| Method | Path | Auth | Phase | Status |
+|---|---|---|---|---|
+| POST | /auth/device | none | v0.1 | ✅ |
+| POST | /auth/register | none | v0.3 | ✅ |
+| POST | /auth/login | none | v0.3 | ✅ |
+| POST | /auth/refresh | none | v0.1 | ✅ |
+| POST | /ai/replies | yes | v0.1 | ✅ |
+| POST | /ai/refine | yes | v0.2 | ✅ |
+| GET | /users/me | yes | v0.3 | ✅ |
+| PATCH | /users/profile | yes | v0.3 | ✅ |
+| GET | /usage | yes | v0.3 | ✅ |
+| GET | /history | yes | v0.3 | ✅ |
+| POST | /subscriptions/verify | yes | v0.4 | ⬜ |
+| GET | /health | none | v0.1 | ✅ |

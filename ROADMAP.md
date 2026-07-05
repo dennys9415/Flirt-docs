@@ -21,11 +21,14 @@ everything at once — validate the reply flow first, then the keyboard, then mo
 - ⬜ Pending: verification on a **physical iPhone** (memory budget, real Full
   Access flow) and moving tokens from App Group UserDefaults to a shared Keychain.
 
-## v0.3 — Users & limits
-- Email login (`/auth/login`, `/auth/refresh`), profile (`/users/*`).
-- Opt-in history; usage metering (`/usage`), Redis rate limiting.
-- Free vs Pro limits enforced server-side.
-- **Exit criteria:** per-user limits and history work; abuse is rate-limited.
+## v0.3 — Users & limits — backend ✅ DONE 2026-07-05
+- ✅ Email register/login (bcrypt), device linking, profile (`/users/*`).
+- ✅ Opt-in history (`/history`; content persisted only with `historyOptIn`).
+- ✅ `GET /usage` (plan, used today, limit, resetsAt) with Redis counter +
+  Postgres fallback.
+- ✅ Free-plan limit machinery complete but **enforced=false** (powerful-MVP
+  decision — flips on via `ENFORCE_PLAN_LIMITS`).
+- ⬜ iOS: account/settings UI, history screen, onboarding.
 
 ## v0.4 — Payments
 - StoreKit subscription (monthly), free trial, upgrade screen.

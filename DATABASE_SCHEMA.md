@@ -25,9 +25,11 @@ users ──1:N── devices
 |---|---|---|
 | id | uuid | PK |
 | email | text | nullable until account created; unique when present |
+| password_hash | text | bcrypt; nullable (V2) |
 | display_name | text | nullable |
 | plan | text | `free` \| `pro` \| `premium`, default `free` |
 | personality | jsonb | tone prefs, style hints (nullable) |
+| history_opt_in | boolean | default false — gates content persistence (V2) |
 | created_at | timestamptz | default now() |
 | updated_at | timestamptz | |
 
