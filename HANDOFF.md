@@ -80,10 +80,15 @@ Agreed sequencing: finish everything buildable without an Apple Developer
 account; enroll ($99) only at the end for TestFlight/App Store.
 
 1. ~~Deploy the backend publicly~~ ✅ **DONE 2026-07-05** — see Production below.
-2. **Add `DEPLOY_SSH_KEY` secret** to the Flirt-api GitHub repo so the CD job
-   works (key ready on the user's machine; see session notes).
-3. **`flirt-contracts`** — extract shared JSON schemas.
-4. End of project (needs Apple account): physical iPhone keyboard test,
+2. **Activate CD** — the CI `deploy` job currently fails because the
+   `DEPLOY_SSH_KEY` secret is missing. The private key is saved at
+   `~/.ssh/flirt_deploy_key` on the user's Mac. Steps: copy its contents →
+   GitHub → Flirt-api → Settings → Secrets and variables → Actions →
+   New repository secret → name `DEPLOY_SSH_KEY`. Next green push deploys.
+3. **`flirt-contracts`** — extract shared JSON schemas (~30 min, no deps).
+4. **User testing on their own iPhone** via cable + free Apple ID (app already
+   points devices to production).
+5. End of project (needs Apple account): physical-device keyboard validation,
    shared Keychain migration, real App Store Server API verification
    (`SUBSCRIPTION_VERIFY_MODE=app_store`), TestFlight, App Store submission.
 
