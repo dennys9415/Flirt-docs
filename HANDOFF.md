@@ -80,17 +80,32 @@ Agreed sequencing: finish everything buildable without an Apple Developer
 account; enroll ($99) only at the end for TestFlight/App Store.
 
 1. ~~Deploy the backend publicly~~ ✅ **DONE 2026-07-05** — see Production below.
-2. **Activate CD** — the CI `deploy` job currently fails because the
-   `DEPLOY_SSH_KEY` secret is missing. The private key is saved at
-   `~/.ssh/flirt_deploy_key` on the user's Mac. Steps: copy its contents →
-   GitHub → Flirt-api → Settings → Secrets and variables → Actions →
-   New repository secret → name `DEPLOY_SSH_KEY`. Next green push deploys.
-3. **`flirt-contracts`** — extract shared JSON schemas (~30 min, no deps).
+2. ~~Activate CD~~ ✅ **DONE 2026-07-08 — PULL-based** (see CD below). The
+   SSH-push approach was abandoned: the user keeps port 22 firewalled to
+   their own IP (Linode Cloud Firewall), so GitHub runners can't SSH in.
+   `DEPLOY_SSH_KEY` is obsolete — delete the GitHub secret if it was created;
+   the deploy key was removed from the server's authorized_keys.
+3. ~~`flirt-contracts`~~ ✅ **DONE 2026-07-08** — types + JSON schemas +
+   versioning rules (Signalix structure), pushed.
 4. **User testing on their own iPhone** via cable + free Apple ID (app already
-   points devices to production).
+   points devices to production; guide given in session 2026-07-08).
 5. End of project (needs Apple account): physical-device keyboard validation,
    shared Keychain migration, real App Store Server API verification
    (`SUBSCRIPTION_VERIFY_MODE=app_store`), TestFlight, App Store submission.
+
+## CD — pull-based (added 2026-07-08)
+
+The **server polls GitHub** instead of GitHub pushing over SSH:
+`Flirt-infra/scripts/auto-deploy.sh` runs every 2 min via systemd timer
+(`flirt-deploy.timer`), compares local HEAD vs `origin/main` of Flirt-api,
+verifies the commit's **CI check-runs are green** (public API, no token),
+and only then runs `deploy.sh` (pull both repos → build → flyway → restart →
+health gate). Logs: `/var/log/flirt-deploy.log` on the server.
+Why: port 22 stays closed to the world; no secrets in GitHub; deploys keep
+working regardless of the user's home-IP firewall allowlist.
+
+**Gotcha:** if the user's ISP rotates their home IP, admin SSH breaks until
+they update the Linode Cloud Firewall source — deploys are unaffected.
 
 ## Production (added 2026-07-05)
 
