@@ -26,6 +26,7 @@ users ──1:N── devices
 | id | uuid | PK |
 | email | text | nullable until account created; unique when present |
 | password_hash | text | bcrypt; nullable (V2) |
+| username | text | unique handle, nullable (V4) |
 | display_name | text | nullable |
 | plan | text | `free` \| `pro` \| `premium`, default `free` |
 | personality | jsonb | tone prefs, style hints (nullable) |
@@ -85,6 +86,15 @@ users ──1:N── devices
 | device_id | uuid | FK → devices.id |
 | kind | text | `reply_generate` \| `refine` |
 | created_at | timestamptz | |
+
+### user_ai_settings (V4 — BYOK)
+| Column | Type | Notes |
+|---|---|---|
+| user_id | uuid | PK, FK → users.id |
+| provider | text | `openai` \| `anthropic` \| `gemini` |
+| api_key_ciphertext | text | AES-256-GCM (key = API_KEY_ENCRYPTION_SECRET) — never plaintext |
+| model | text | optional override |
+| created_at / updated_at | timestamptz | |
 
 > Real-time counters for rate limiting live in **Redis**; `usage_events` is the
 > durable audit trail used for analytics and plan enforcement.

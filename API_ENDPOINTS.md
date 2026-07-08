@@ -24,20 +24,23 @@ Register/identify an anonymous device (used before full account exists).
 ```
 
 ### POST /auth/register
-Create an account; links the calling device.
+Create an account; links the calling device. `username` optional
+(`/^[a-z0-9_]{3,30}$/`, added v0.5).
 ```json
 // req
-{ "email": "…", "password": "…", "deviceIdentifier": "…" }
+{ "email": "…", "password": "…", "username": "…", "deviceIdentifier": "…" }
 // res
 { "accessToken": "…", "refreshToken": "…", "deviceId": "…",
   "user": { "id": "…", "email": "…", "plan": "free" } }
 ```
-Errors: `409 email_taken`.
+Errors: `409 email_taken`, `409 username_taken`.
 
 ### POST /auth/login
+Accepts `email` OR `username` (v0.5, additive).
 ```json
 // req
 { "email": "…", "password": "…", "deviceIdentifier": "…" }
+// or: { "username": "…", "password": "…", "deviceIdentifier": "…" }
 // res — same shape as /auth/register
 { "accessToken": "…", "refreshToken": "…", "deviceId": "…",
   "user": { "id": "…", "email": "…", "plan": "free" } }
@@ -99,6 +102,29 @@ Requires an account (`403 account_required` for anonymous devices).
 { "displayName": "…", "personality": { "traits": ["funny","confident"] },
   "historyOptIn": true }
 ```
+
+---
+
+## AI settings (BYOK, v0.5)
+
+Users can bring their own AI key. Requires an account. The key is stored
+encrypted (AES-256-GCM); responses only ever include a masked view. When set,
+`/ai/replies` uses the user's provider/key (`keySource: "user_key"`).
+
+### PUT /users/ai-settings
+```json
+// req
+{ "provider": "anthropic", "apiKey": "sk-ant-…", "model": "claude-opus-4-8" }
+// res
+{ "provider": "anthropic", "model": "claude-opus-4-8", "apiKeyMasked": "sk-a…-key" }
+```
+Errors: `400 unknown_provider`, `400 byok_unavailable`, `403 account_required`.
+
+### GET /users/ai-settings
+`{ "settings": { … } }` or `{ "settings": null }`.
+
+### DELETE /users/ai-settings
+`204` — reverts the user to the system provider.
 
 ---
 
@@ -168,5 +194,8 @@ Errors: `400 unknown_product`, `403 account_required`.
 | PATCH | /users/profile | yes | v0.3 | ✅ |
 | GET | /usage | yes | v0.3 | ✅ |
 | GET | /history | yes | v0.3 | ✅ |
+| PUT | /users/ai-settings | yes | v0.5 | ✅ |
+| GET | /users/ai-settings | yes | v0.5 | ✅ |
+| DELETE | /users/ai-settings | yes | v0.5 | ✅ |
 | POST | /subscriptions/verify | yes | v0.4 | ✅ (trust_client mode) |
 | GET | /health | none | v0.1 | ✅ |
