@@ -1,7 +1,40 @@
 # Handoff — Project Status
 
-> Last updated: **2026-07-05**. Update this file at the end of every working
+> Last updated: **2026-07-08**. Update this file at the end of every working
 > session (Signalix convention).
+
+## v0.5 (2026-07-08) — BYOK + username, LIVE in production
+
+- **BYOK**: users with an account can store their own OpenAI/Claude/Gemini
+  key (`PUT/GET/DELETE /users/ai-settings`; AES-256-GCM at rest via
+  `API_KEY_ENCRYPTION_SECRET`; masked view only). Generation resolves the
+  user's provider first — `keySource: user_key|system` in responses.
+  ⚠️ **Pending:** the encryption secret is NOT yet on the production server
+  (SSH was firewalled again mid-session) → prod BYOK returns
+  `byok_unavailable` (designed degradation; everything else works). When SSH
+  returns: append `API_KEY_ENCRYPTION_SECRET=$(openssl rand -hex 32)` to
+  `/opt/flirt/Flirt-infra/env/api.env` and `docker compose -f
+  docker-compose.prod.yml up -d api` (in /opt/flirt/Flirt-infra).
+- **Username**: optional handle at register, login with email OR username
+  (additive — old clients unaffected). Verified live in prod.
+- iOS: AI Provider section in Settings, reusable AuthFormView, onboarding
+  page 4 (create account / log in / skip).
+- "Login with Claude/AI subscription" was researched and is NOT possible for
+  third-party apps — BYOK is the legitimate equivalent.
+- Contracts 0.5.0 pushed. 85 tests green (61 unit + 24 e2e).
+- **SSH note:** the user's Linode Cloud Firewall keeps closing port 22 (home
+  IP rotation?). Pull-CD is immune; only admin tasks block.
+
+## User's roadmap wishes (discussed 2026-07-08)
+
+- Google Sign-In: feasible now, needs the user to create OAuth credentials
+  in Google Cloud Console. Sign in with Apple: needs the $99 account, and
+  App Store rule 4.8 makes it MANDATORY once Google login ships — do both
+  together at the end.
+- **Auto-responder**: iOS sandbox makes auto-replying in Tinder/IG/WhatsApp
+  impossible (explained to user); agreed realistic scope = **Gmail
+  auto-reply** (OAuth + rules: who → tone → draft/send + backend cron).
+  Not started.
 
 ## Where the project stands
 
