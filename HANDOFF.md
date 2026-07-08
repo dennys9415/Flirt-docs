@@ -9,12 +9,9 @@
   key (`PUT/GET/DELETE /users/ai-settings`; AES-256-GCM at rest via
   `API_KEY_ENCRYPTION_SECRET`; masked view only). Generation resolves the
   user's provider first — `keySource: user_key|system` in responses.
-  ⚠️ **Pending:** the encryption secret is NOT yet on the production server
-  (SSH was firewalled again mid-session) → prod BYOK returns
-  `byok_unavailable` (designed degradation; everything else works). When SSH
-  returns: append `API_KEY_ENCRYPTION_SECRET=$(openssl rand -hex 32)` to
-  `/opt/flirt/Flirt-infra/env/api.env` and `docker compose -f
-  docker-compose.prod.yml up -d api` (in /opt/flirt/Flirt-infra).
+  ✅ Encryption secret installed on the server (2026-07-08); BYOK verified
+  end-to-end in production (PUT → generate with `user_key` → DELETE → back
+  to `system`).
 - **Username**: optional handle at register, login with email OR username
   (additive — old clients unaffected). Verified live in prod.
 - iOS: AI Provider section in Settings, reusable AuthFormView, onboarding
